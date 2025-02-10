@@ -1,19 +1,44 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { QrCodeDialog } from "@/components/dialogs";
-import React from "react";
-import { useForm } from "react-hook-form";
-import { useSession, signIn } from "next-auth/react";
+import { QrCodeDialog } from "@/components/dialogs/TotpDialog";
+import React, { useState } from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { signIn } from "next-auth/react";
+import { yupResolver } from '@hookform/resolvers/yup';
 import { useTheme } from "next-themes";
 import { ThemeSwitch } from "@/components/switch/themeswitch";
 import LoginLottie from "@/components/animations/LoginLottie";
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
+import { sendEmailValidation } from "@/services/api/api";
+import { EmailTokenDialog } from "@/components/dialogs/EmailTokenDialog";
+import { emailRequestSchema } from "@/schemas/authSchema";
+
 
 export default function Page() {
   const { theme } = useTheme();
-  const { register, handleSubmit, formState: { errors } } = useForm();
-  const { data } = useSession();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<EmailRequest>({
+    resolver: yupResolver(emailRequestSchema)
+  });
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const onSubmit: SubmitHandler<EmailRequest> = async (data: EmailRequest) => {
+    const response = await sendEmailValidation(data.email);
+    if (response.error) {
+      console.error("Error sending email validation:", response.error);
+      setErrorMessage("fez merda né paizão");
+    } else {
+      console.log("Email validation sent successfully:", response);
+      setIsDialogOpen(true);
+      setErrorMessage("");
+    }
+  };
 
   return (
     <div className="min-h-screentext-gray-900 flex justify-center">
@@ -64,7 +89,7 @@ export default function Page() {
               </div>
 
               <div className="mx-auto max-w-xs">
-                <form onSubmit={() => {}} action="">
+                <form onSubmit={handleSubmit(onSubmit)} action="">
                   <input
                     type="text"
                     {...register("email")}
@@ -73,55 +98,15 @@ export default function Page() {
                     placeholder="Email"
                     className="w-full px-6 py-3 rounded-lg dark:text-black font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 focus:outline-none focus:border-gray-400 focus:bg-white"
                   />
-                  {errors.login && (
+                  {errors.email && (
                     <p className="text-red-500 text-sm mb-1">
-                      {errors.login.message}
+                      {errors.email.message}
                     </p>
                   )}
-                  <div className="flex items-center justify-between mt-5">
-                    <div className="flex items-start">
-                      <div className="flex items-center h-5">
-                        <input
-                          id="rememberMe"
-                          {...register("rememberMe")}
-                          type="checkbox"
-                          className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800"
-                        />
-                      </div>
-                      <div className="ml-3 text-sm">
-                        <label
-                          htmlFor="remember"
-                          className="text-gray-500 dark:text-gray-300"
-                        >
-                          Lembrar Login
-                        </label>
-                      </div>
-                    </div>
-                    <a
-                      href="/register"
-                      className="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500"
-                    >
-                      Esqueceu a senha?
-                    </a>
-                  </div>
-                  <button
-                    type="submit"
-                    className="mt-5 tracking-wide font-semibold bg-primary text-gray-100 w-full py-4 rounded-lg hover:bg-secondary transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none"
-                  >
-                    <svg
-                      className="w-6 h-6 -ml-2"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-                      <circle cx="8.5" cy="7" r="4" />
-                      <path d="M20 8v6M23 11h-6" />
-                    </svg>
-                    <span className="ml-3">Entrar</span>
-                  </button>
+                  {errorMessage && (
+                    <p className="text-red-500 text-sm mb-1">{errorMessage}</p>
+                  )}
+                  <EmailTokenDialog isOpen={isDialogOpen} />
                 </form>
               </div>
             </div>

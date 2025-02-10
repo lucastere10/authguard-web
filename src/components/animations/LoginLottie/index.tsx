@@ -1,7 +1,9 @@
-// components/MyLottieAnimation.js
+'use client'
 import React from 'react';
-import Lottie from 'react-lottie';
+import dynamic from "next/dynamic";
 import LoadingSpinner from '../../../../public/animations/LoginLottie.json';
+
+const Lottie = dynamic(() => import("react-lottie"), { ssr: false });
 
 const LoginLottie = () => {
   const options = {

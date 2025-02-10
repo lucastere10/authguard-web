@@ -13,8 +13,25 @@ import { InputOTPLogin } from "@/components/inputs/OTP";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import React from "react";
+import { fetchSecret, verifySecret } from "@/services/api/api";
 
 export function QrCodeDialog() {
+  const [src, setSrc] = useState<string>("");
+  const [code, setCode] = useState<string>("");
+  const [verify, setVerify] = useState<string>("");
+
+  useEffect(() => {
+    handleSecret();
+  }, []);
+
+  async function handleSecret() {
+    const secret = await fetchSecret();
+    setSrc(secret);
+  }
+
+  async function handleVerify(code: string) {
+    await verifySecret(code);
+  }
 
   return (
     <Dialog>
@@ -34,7 +51,7 @@ export function QrCodeDialog() {
           <DialogHeader className="items-center gap-2">
             <DialogTitle>Logar com QR Code</DialogTitle>
             <DialogDescription className="text-center">
-              Use o aplicativo Springtech para ler o QR Code e fazer o login
+              Use o aplicativo Authguard para ler o QR Code e fazer o login
             </DialogDescription>
           </DialogHeader>
         </div>

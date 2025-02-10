@@ -2,14 +2,6 @@ import NextAuth, { NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import axios from "axios"
 
-declare module "next-auth" {
-  interface Session {
-    accessToken?: string;
-    idToken?: string;
-    token: string;
-  }
-}
-
 const nextAuthOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -18,30 +10,22 @@ const nextAuthOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, account }) {
-      // Attach Google's tokens
-      if (account) {
-        token.accessToken = account.access_token;
-        token.idToken = account.id_token;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      // Use Google's ID token to log in to your backend
-      if (token.idToken) {
+    async signIn({ account }) {
+      if (account?.id_token) {
+        console.log("Google ID Token:", account.id_token);
         try {
           const response = await axios.post(
             `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
-            { googleToken: token.idToken }
+            { token: account.id_token, provider: "google" }
           );
-          session.token = `Bearer ${response.data.token}`; // Attach your backend's JWT to the session
+          account.id_token = `Bearer ${response.data.token}`; // Attach your backend's JWT to the user
+          console.log("Backend JWT:", account.access_token);
         } catch (error) {
           console.error("Failed to authenticate with backend:", error);
+          return false;
         }
       }
-      session.accessToken = token.accessToken as string; // For potential future use
-      session.idToken = token.idToken as string;         // Google's token
-      return session;
+      return true;
     },
   },
 };
