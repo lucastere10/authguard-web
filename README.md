@@ -89,3 +89,30 @@ yarn dev
 # or
 pnpm install
 pnpm dev
+```
+Open http://localhost:3000 with your browser to see the app in action. Edit the page by modifying app/page.tsx – the page will auto-update as you save your changes.
+
+Learn More
+----------
+
+To dive deeper into Next.js and related technologies, check out these resources:
+
+*   [Next.js Documentation](https://nextjs.org/docs) – Learn about Next.js features and API.
+    
+*   [Learn Next.js](https://nextjs.org/learn) – An interactive Next.js tutorial.
+    
+*   NextAuth Documentation – Comprehensive guide on authentication in Next.js.
+    
+*   [Resend](https://resend.com) – Learn more about the email service powering passwordless login.
+    
+
+Deploy on Vercel
+----------------
+
+Deploying your Next.js app is effortless on the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme). For more details, visit the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying).
+
+Contributing
+------------
+
+Contributions are welcome! Feel free to submit issues and pull requests to help improve the project.
+
