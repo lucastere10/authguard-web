@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getSession } from "next-auth/react";
+import { joinRoom, sendAuthentication } from "./socket";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080/api",
@@ -48,6 +49,10 @@ export const fetchSecret = async () => {
 export const verifySecret = async (code: string) => {
   try {
     const response = await api.post(`/auth/totp/validate`, { code });
+    if (response.data.roomId) {
+      joinRoom(response.data.roomId);
+      sendAuthentication(response.data.token);
+    }
     return response.data;
   } catch (err: any) {
     if (err.response) {
