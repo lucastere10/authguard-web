@@ -22,6 +22,8 @@ export function QrCodeDialog() {
 
   useEffect(() => {
     handleSecret();
+    const interval = setInterval(handleSecret, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   async function handleSecret() {
